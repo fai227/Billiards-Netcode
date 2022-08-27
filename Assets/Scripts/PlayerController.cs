@@ -27,6 +27,9 @@ public class PlayerController : NetworkBehaviour
         //名前のコールバック
         playerName.OnValueChanged += SetPlayerName;
 
+        //スコアのコールバック
+        score.OnValueChanged += ScoreCallback;
+
         if (IsOwner)
         {
             //準備完了のコールバック
@@ -44,8 +47,12 @@ public class PlayerController : NetworkBehaviour
 
         //名前のコールバック
         playerName.OnValueChanged -= SetPlayerName;
+        UIManager.Instance.SetPlayerUI(OwnerClientId, false);   //プレイヤーの名前を消す
 
-        if(IsOwner)
+        //スコアのコールバック
+        score.OnValueChanged -= ScoreCallback;
+
+        if (IsOwner)
         {
             //準備完了のコールバック
             isReady.OnValueChanged -= UIManager.Instance.SetReadyUI;
@@ -58,6 +65,7 @@ public class PlayerController : NetworkBehaviour
     private void SetPlayerName(FixedString32Bytes prev, FixedString32Bytes next)
     {
         gameObject.name = next.ToString();
+        UIManager.Instance.SetPlayerUI(OwnerClientId, true, playerName.Value.ToString());    //プレイヤーの名前表示
     }
 
     //準備状態をサーバーに変更依頼
@@ -71,6 +79,12 @@ public class PlayerController : NetworkBehaviour
         {
             GameManager.Instance.Ready();
         }
+    }
+
+    //スコアセットコールバック
+    private void ScoreCallback(int _, int next)
+    {
+        UIManager.Instance.SetScore(OwnerClientId, next);
     }
     #endregion
 }

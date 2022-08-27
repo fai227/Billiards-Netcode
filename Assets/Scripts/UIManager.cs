@@ -29,6 +29,7 @@ public class UIManager : NetworkBehaviour
     [SerializeField] private Button readyButton;
     private static float buttonDuration = 0.5f;
     [SerializeField] private Button[] gameTypeButtons;
+    [SerializeField] private Button hardModeButton;
 
     [Header("Game UI")]
     [SerializeField] private GameObject gamePanel;
@@ -43,18 +44,18 @@ public class UIManager : NetworkBehaviour
     private void Start()
     {
         //パネル初期設定
-        titlePanel.SetActive(true);
-        lobbyPanel.SetActive(false);
-        gamePanel.SetActive(false);
+        FadePanel(titlePanel, true, 0f);
+        FadePanel(lobbyPanel, false, 0f);
+        FadePanel(gamePanel, false, 0f);
     }
     #endregion
 
     #region Methods
     //タイトルパネルフェードアウト用
-    public void FadeTitlePanel()
+    public void EnterLobby()
     {
-        titlePanel.SetActive(false);
-        lobbyPanel.SetActive(true);
+        FadePanel(titlePanel, false);
+        FadePanel(lobbyPanel, true);
     } 
 
     //プレイヤー名取得関数
@@ -113,19 +114,41 @@ public class UIManager : NetworkBehaviour
     //ゲーム開始・終了されたときに呼び出されるコールバック
     public void SetGameUI(bool _, bool next)
     {
+        //ゲーム開始
+        if (next)
+        {
+            //パネル設定
+            FadePanel(gamePanel, true);
+            FadePanel(lobbyPanel, false);
 
+        }
+        //ゲーム終了
+        else
+        {
+            //パネル設定
+            FadePanel(gamePanel, false);
+            FadePanel(lobbyPanel, true);
+
+
+        }
     }
 
     //ゲームの種類を変更するコールバック
     public void SetGameTypeUI(GameManager.GameType prev, GameManager.GameType next)
     {
+        //全て黒にする
+        for(int i = 0; i < 4; i++)
+        {
+            if((int)next != i)
+            {
+                gameTypeButtons[i].GetComponent<Image>().DOColor(Color.black, buttonDuration);
+                gameTypeButtons[i].GetComponentInChildren<Text>().DOColor(Color.black, buttonDuration);
+            }
+        }
+
         //選択したものを赤にする
         gameTypeButtons[(int)next].GetComponent<Image>().DOColor(Color.red, buttonDuration);
         gameTypeButtons[(int)next].GetComponentInChildren<Text>().DOColor(Color.red, buttonDuration);
-
-        //選択解除されたものを黒にする
-        gameTypeButtons[(int)prev].GetComponent<Image>().DOColor(Color.black, buttonDuration);
-        gameTypeButtons[(int)prev].GetComponentInChildren<Text>().DOColor(Color.black, buttonDuration);
     }
 
     //ゲームの変更を行う関数
@@ -141,15 +164,102 @@ public class UIManager : NetworkBehaviour
     }
 
     //プレイヤーのUIをセットする関数
-    public void SetPlayerUI(ulong id)
+    public void SetPlayerUI(ulong id, bool flag, string name = "")
     {
+        //プレイヤー接続
+        if(flag)
+        {
+            //プレイヤーUI作成
+            GameObject playerNameUI = Instantiate(playerPrefab, playersPanel.transform);
+            playerNameUI.name = id.ToString();
 
+            //名前反映
+            playerNameUI.GetComponentInChildren<Text>().text = name;
+        }
+        //プレイヤー切断
+        else
+        {
+            GameObject playerNameUI = playersPanel.transform.Find(id.ToString()).gameObject;
+            if(playerNameUI != null)
+            {
+                Destroy(playerNameUI);
+            }
+        }
     }
 
     //現在のプレイヤーのUIを設定する関数
-    public void SetNowPlayerUI(ulong id)
+    public void SetNowPlayerUI(ulong id, bool flag = true)
     {
+        //全てのUIを元に戻す
+        for(int i = 0; i < playersPanel.transform.childCount; i++)
+        {
+            playersPanel.transform.GetChild(i).Find("Circle").GetComponent<Image>().sprite = noneSprite;
+        }
 
+        //現在のターンのプレイヤーUIの設定
+        if(flag)
+        {
+            playersPanel.transform.Find(id.ToString()).Find("Circle").GetComponent<Image>().sprite = rightSprite;
+        }
+    }
+
+    //パネルのフェード関数
+    public void FadePanel(GameObject panel, bool flag, float time = 0.5f)
+    {
+        CanvasGroup panelCanvasGroup = panel.GetComponent<CanvasGroup>();
+
+        if(panelCanvasGroup == null)
+        {
+            Debug.LogError($"Canvas Group is not attached to {panel.name}", this);
+        }
+
+        //フェードイン
+        if (flag)
+        {
+            //初期設定
+            panelCanvasGroup.interactable = false;
+            panelCanvasGroup.alpha = 0f;
+            panel.SetActive(true);
+
+            //フェードイン開始
+            panelCanvasGroup.DOFade(1f, time).OnComplete(() =>
+            {
+                //完了後に触れるようにする
+                panelCanvasGroup.interactable = true;
+            });
+        }
+        //フェードアウト
+        else
+        {
+            //初期設定
+            panelCanvasGroup.interactable = false;
+            panelCanvasGroup.alpha = 1f;
+
+            //フェードアウト開始
+            panelCanvasGroup.DOFade(0f, time).OnComplete(() =>
+            {
+                //完了後設定
+                panel.SetActive(false);
+            });
+        }
+    }
+
+    //スコアセット関数
+    public void SetScore(ulong id, int score)
+    {
+        playersPanel.transform.Find(id.ToString()).Find("Score").GetComponentInChildren<Text>().text = score.ToString();
+    }
+
+    //モード変更関数
+    [ServerRpc(RequireOwnership = false)]public void SetModeServerRpc()
+    {
+        GameManager.Instance.hardMode.Value = !GameManager.Instance.hardMode.Value;
+    }
+
+    //モードをボタンにセット関数
+    public void SetModeButton(bool flag)
+    {
+        hardModeButton.GetComponentInChildren<Text>().text = flag ? "Hard" : "Easy";
     }
     #endregion
 }

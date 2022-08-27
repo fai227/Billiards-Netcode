@@ -81,7 +81,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: 9993d31c904af044ba7adcdb1c13981b, type: 2}
     - target: {fileID: 919132149155446097, guid: 445290cba06a37c439f1f8989e6b7132, type: 3}
       propertyPath: m_Name
-      value: Table
+      value: TablePrefab
       objectReference: {fileID: 0}
     - target: {fileID: 1198178304744146152, guid: 445290cba06a37c439f1f8989e6b7132, type: 3}
       propertyPath: m_Materials.Array.data[0]
