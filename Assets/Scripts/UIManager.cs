@@ -19,6 +19,7 @@ public class UIManager : NetworkBehaviour
     private static float fadeColorDuration = 0.1f;
 
     [Header("Player Name UI")]
+    [SerializeField] GameObject playerInfPanel;
     [SerializeField] private GameObject playersPanel;
     [SerializeField] private GameObject playerPrefab;
     [SerializeField] private Sprite noneSprite;
@@ -54,6 +55,7 @@ public class UIManager : NetworkBehaviour
     //タイトルパネルフェードアウト用
     public void EnterLobby()
     {
+        FadePanel(playerInfPanel, true);
         FadePanel(titlePanel, false);
         FadePanel(lobbyPanel, true);
     } 
@@ -134,7 +136,7 @@ public class UIManager : NetworkBehaviour
     }
 
     //ゲームの種類を変更するコールバック
-    public void SetGameTypeUI(GameManager.GameType prev, GameManager.GameType next)
+    public void SetGameTypeUI(GameManager.GameType _, GameManager.GameType next)
     {
         //全て黒にする
         for(int i = 0; i < 4; i++)

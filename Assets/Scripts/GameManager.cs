@@ -24,7 +24,7 @@ public class GameManager : NetworkBehaviour
     [Header("Game Setting")]
     public NetworkVariable<bool> isPlaying;
     public NetworkVariable<GameType> gameType;
-    public NetworkVariable<ulong> whoseTurn;
+    public ulong whoseTurn;
     private int startPlayerNum;
     private int turnNum;
     public NetworkVariable<bool> hardMode;
@@ -47,9 +47,6 @@ public class GameManager : NetworkBehaviour
         //プレイ開始・終了を認識するコールバック
         isPlaying.OnValueChanged += UIManager.Instance.SetGameUI;
 
-        //ターン変更コールバック
-        whoseTurn.OnValueChanged += ChangeTurnCallBack;
-
         //ゲームの種類変更コールバック
         gameType.OnValueChanged += UIManager.Instance.SetGameTypeUI;
 
@@ -63,9 +60,6 @@ public class GameManager : NetworkBehaviour
 
         //プレイ開始・終了を認識するコールバック
         isPlaying.OnValueChanged -= UIManager.Instance.SetGameUI;
-
-        //ターン変更コールバック
-        whoseTurn.OnValueChanged -= ChangeTurnCallBack;
 
         //ゲームの種類変更コールバック
         gameType.OnValueChanged -= UIManager.Instance.SetGameTypeUI;
@@ -199,10 +193,31 @@ public class GameManager : NetworkBehaviour
         NextTurn(); 
     }
 
+    //次のターンへ以降する関数（サーバーサイドで実行）
     public void NextTurn()
     {
+        //キューを破壊
+
+        //次のターンに設定
         turnNum++;
-        whoseTurn.Value = NetworkManager.ConnectedClientsIds[(startPlayerNum + turnNum) % NetworkManager.ConnectedClientsIds.Count];
+        whoseTurn = NetworkManager.ConnectedClientsIds[(startPlayerNum + turnNum) % NetworkManager.ConnectedClientsIds.Count];
+
+        //キューを生成
+
+        //次のプレイヤーに以降
+        NextTurnClientRpc(whoseTurn);
+    }
+
+    //次のターンへ以降するクラアント側の関数
+    [ClientRpc] public void NextTurnClientRpc(ulong nextPlayerID, bool isFoul = false)
+    {
+        //ターンのUIを変更
+        UIManager.Instance.SetNowPlayerUI(nextPlayerID);
+
+        //設定
+        bool myTurn = nextPlayerID == NetworkManager.LocalClientId;
+        BallController.myTurn = myTurn;
+        NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<PlayerController>().SetMyTurn(myTurn, isFoul);
     }
 
     //ゲーム終了関数（サーバーサイドのみで実行される）
@@ -216,19 +231,6 @@ public class GameManager : NetworkBehaviour
         {
             player.PlayerObject.GetComponent<PlayerController>().isReady.Value = false;
         }
-    }
-
-    //ターン交代コールバック
-    private void ChangeTurnCallBack(ulong prev, ulong next)
-    {
-        if(next >= 0)
-        {
-            //ターンのUIを変更
-            UIManager.Instance.SetNowPlayerUI(next);
-        }
-
-        //自分のターンか変更
-        BallController.myTurn = next == OwnerClientId;
     }
 
     //モード変更コールバック

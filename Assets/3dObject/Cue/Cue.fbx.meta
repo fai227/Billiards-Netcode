@@ -1,9 +1,44 @@
 fileFormatVersion: 2
-guid: b2000393b420b5d4bbba8f6646260d2f
+guid: 8a2fc1e2c8bf9164cb6853a7e7ec78eb
 ModelImporter:
   serializedVersion: 21300
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material.002
+    second: {fileID: 2100000, guid: 5366f88a0a71836419b6a9eeb801b0ad, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: cueBody
+    second: {fileID: 2100000, guid: 5366f88a0a71836419b6a9eeb801b0ad, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: cueBrass
+    second: {fileID: 2100000, guid: dc30c416ad45a4a4992b0eb5a69ea9d7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: cueEnd
+    second: {fileID: 2100000, guid: dc30c416ad45a4a4992b0eb5a69ea9d7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: cueFront
+    second: {fileID: 2100000, guid: dc30c416ad45a4a4992b0eb5a69ea9d7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: cueRubber
+    second: {fileID: 2100000, guid: dc30c416ad45a4a4992b0eb5a69ea9d7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: cueTip
+    second: {fileID: 2100000, guid: b2b405c8ef090a641bdcc6f0ceb09cf0, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

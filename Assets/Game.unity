@@ -190,7 +190,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1327,6 +1327,7 @@ GameObject:
   - component: {fileID: 795921760}
   - component: {fileID: 795921762}
   - component: {fileID: 795921761}
+  - component: {fileID: 795921763}
   m_Layer: 5
   m_Name: PlayerInformation
   m_TagString: Untagged
@@ -1393,6 +1394,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 795921759}
   m_CullTransparentMesh: 1
+--- !u!225 &795921763
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 795921759}
+  m_Enabled: 1
+  m_Alpha: 0
+  m_Interactable: 0
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &914194779
 GameObject:
   m_ObjectHideFlags: 0
@@ -1444,8 +1457,7 @@ MonoBehaviour:
     m_InternalValue: 0
   gameType:
     m_InternalValue: 0
-  whoseTurn:
-    m_InternalValue: 18446744073709551615
+  whoseTurn: 0
   hardMode:
     m_InternalValue: 0
   ballPrefab: {fileID: 892555900979264933, guid: 28876d9777e672e4aac65a3d892c4e96, type: 3}
@@ -1463,6 +1475,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   titlePanel: {fileID: 2070106054}
   playerNameInputField: {fileID: 1743635053}
+  playerInfPanel: {fileID: 795921759}
   playersPanel: {fileID: 1824290272}
   playerPrefab: {fileID: 2806742284338415981, guid: 79ba4b5a384598f4ab10141238724f86, type: 3}
   noneSprite: {fileID: 21300000, guid: 67d26aedff211d940a0a479f8a01fdc2, type: 3}
@@ -1640,8 +1653,40 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1174776382}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 90, y: 90, z: 0}
+--- !u!1 &1073958472
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1073958473}
+  m_Layer: 0
+  m_Name: BallCameraBase
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1073958473
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1073958472}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1090798049}
+  m_Father: {fileID: 1174776382}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1082450790
 GameObject:
   m_ObjectHideFlags: 0
@@ -1857,8 +1902,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1174776382}
-  m_RootOrder: 1
+  m_Father: {fileID: 1073958473}
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 50, y: 0, z: 0}
 --- !u!1 &1170808392
 GameObject:
@@ -1977,8 +2022,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 1073958473}
   - {fileID: 963194228}
-  - {fileID: 1090798049}
   - {fileID: 705507995}
   m_Father: {fileID: 0}
   m_RootOrder: 2
@@ -3143,7 +3188,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
