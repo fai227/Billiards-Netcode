@@ -17,10 +17,9 @@ public class PlayerController : NetworkBehaviour
     private GameObject ballCameraBase;
     private Camera ballCamera;
     private bool canMoveCamera;
-    private float cameraDistance = cameraFarDistance;
-    private static float cameraFarDistance = 5f;
-    private static float cameraNearDistance = 1f;
-    private static float cameraModeDuration = 1f;
+    private static Vector3 cameraFarPosition = new Vector3(0f, 1.5f, -1.5f);
+    private static Vector3 cameraNearPosition = new Vector3(0f, 0.25f, -0.5f);
+    private static float cameraModeDuration = 2f;
 
     #endregion
 
@@ -78,19 +77,15 @@ public class PlayerController : NetworkBehaviour
 
     private void Update()
     {
-        //カメラを指定位置に移動
-        ballCamera.transform.LookAt(ballCameraBase.transform);
-        float magnitude = ballCamera.transform.position.magnitude;
-        if(magnitude != cameraDistance)
+        if (IsOwner)
         {
-            ballCamera.transform.position = ballCamera.transform.position / magnitude * cameraDistance;
-        }
-
-        //カメラを動かすことが出来るときは動かす
-        if (canMoveCamera)
-        {
-            Debug.Log("カメラを動かせます");
-            ballCameraBase.transform.Rotate(Input.GetAxis("MouseY"), -Input.GetAxis("Mouse X"), 0f);
+            //カメラを動かすことが出来るときは動かす
+            if (canMoveCamera)
+            {
+                Vector3 prev = ballCameraBase.transform.rotation.eulerAngles;
+                ballCameraBase.transform.Rotate(0f, Input.GetAxis("Mouse X"), 0f);
+                Debug.Log(prev - ballCameraBase.transform.rotation.eulerAngles);
+            }
         }
     }
     #endregion
@@ -125,42 +120,66 @@ public class PlayerController : NetworkBehaviour
     //自分のターンかをセットする
     public void SetMyTurn(bool flag, bool isFoul)
     {
-        //自身のターンで、ファールでなければカメラを追尾モードに設定
-        if(flag && !isFoul)
+        //自分のターンの時
+        if(flag)
         {
-            canMoveCamera = false;
-            ballCameraBase.transform.DOMove(GameObject.FindGameObjectWithTag("MainBall").transform.position, cameraModeDuration);
-            //カメラの距離を徐々に近づけ、最後にカメラを動かせるようにする
-            DOTween.To(
-                () => cameraDistance,
-                (val) => cameraDistance = val,
-                cameraNearDistance,
-                cameraModeDuration
-                ).OnComplete(() => canMoveCamera = true);
+            //ファールじゃないとき
+            if (!isFoul)
+            {
+                
+                SetCameraPosition(true);
+            }
+            //ファールの時
+            else
+            {
 
+                SetCameraPosition(false);
+            }
         }
         else
         {
-            SetCameraFollowBall();
-        }
-    }
 
-    //カメラを戻す関数
-    public void SetCameraFollowBall()
-    {
-        canMoveCamera = false;
-        //ballCameraBase.transform.DOMove(Vector3.zero, cameraModeDuration);
-        //ballCamera.transform.DOMove(ballCameraOriginPosition, cameraModeDuration);
+            SetCameraPosition(false);
+        }
+        //自身のターンで、ファールでなければカメラを追尾モードに設定
+        SetCameraPosition(flag && !isFoul);
+        
     }
 
     //カメラの位置を設定する関数
-    public void SetCameraPosition(bool reset = false)
+    public void SetCameraPosition(bool follow)
     {
-        //カメラリセット関数
-        if (reset)
-        {
+        //カメラを動かせなくする
+        canMoveCamera = false;
 
+        //白玉を追うとき
+        if (follow)
+        {
+            Vector3 mainBallPosition = GameObject.FindGameObjectWithTag("MainBall").transform.position;
+            ballCameraBase.transform.DOLocalMove(mainBallPosition, cameraModeDuration);
+
+            float centerRotationY = Quaternion.LookRotation(-mainBallPosition).eulerAngles.y;
+            ballCameraBase.transform.DOLocalRotate(new Vector3(0f, centerRotationY, 0f), cameraModeDuration);
+
+            ballCamera.transform.DOLocalMove(cameraNearPosition, cameraModeDuration);
+            float angle = Mathf.Atan(-cameraNearPosition.y / cameraNearPosition.z) * Mathf.Rad2Deg;
+            ballCamera.transform.DOLocalRotate(new Vector3(angle, 0f, 0f), cameraModeDuration);
         }
+        //カメラをリセットするとき
+        else
+        {
+            ballCameraBase.transform.DOLocalMove(Vector3.zero, cameraModeDuration);
+            ballCameraBase.transform.DOLocalRotateQuaternion(Quaternion.identity, cameraModeDuration);
+            ballCamera.transform.DOLocalMove(cameraFarPosition, cameraModeDuration);
+            float angle = Mathf.Atan(-cameraFarPosition.y / cameraFarPosition.z) * Mathf.Rad2Deg;
+            ballCamera.transform.DOLocalRotate(new Vector3(angle, 0f, 0f), cameraModeDuration);
+        }
+
+        //カメラを時間をおいて動かせるようにする
+        DOVirtual.DelayedCall(cameraModeDuration, () =>
+        {
+            canMoveCamera = true;
+        }, false);
     }
     #endregion
 }

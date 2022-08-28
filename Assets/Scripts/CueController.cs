@@ -5,15 +5,23 @@ using Unity.Netcode;
 
 public class CueController : NetworkBehaviour
 {
-    // Start is called before the first frame update
+    PlayerController playerController;
+
     void Start()
     {
-        
+        if (!IsOwner)
+        {
+            return;
+        }
+
+        playerController = NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<PlayerController>();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        
+        if (Input.GetMouseButtonDown(0))
+        {
+            playerController.
+        }
     }
 }

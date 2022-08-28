@@ -21,8 +21,10 @@ public class BallController : NetworkBehaviour
     #endregion
 
     #region Unity Methods
-    private void Start()
+    public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         ChangeBallMaterial();
         UpdateTransform();
     }
