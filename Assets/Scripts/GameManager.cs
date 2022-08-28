@@ -32,6 +32,9 @@ public class GameManager : NetworkBehaviour
     [Header("Ball")]
     [SerializeField] private GameObject ballPrefab;
 
+    [Header("Cue")]
+    [SerializeField] private GameObject cuePrefab;
+
     #endregion
 
     #region Unity Methods
@@ -194,18 +197,29 @@ public class GameManager : NetworkBehaviour
     }
 
     //次のターンへ以降する関数（サーバーサイドで実行）
-    public void NextTurn()
+    public void NextTurn(int firstBallNum = 0)
     {
-        //キューを破壊
+        //ボールが入っているかチェック
+        bool isFoul = false;
+        bool sameClientTurn = false;
+
+        //--------------------
 
         //次のターンに設定
-        turnNum++;
+        if (sameClientTurn)
+        {
+            turnNum++;
+        }
         whoseTurn = NetworkManager.ConnectedClientsIds[(startPlayerNum + turnNum) % NetworkManager.ConnectedClientsIds.Count];
 
-        //キューを生成
+        //ファールでないときは白玉の位置にキューを生成
+        if (!isFoul)
+        {
+            SetCue(whoseTurn);
+        }
 
         //次のプレイヤーに以降
-        NextTurnClientRpc(whoseTurn);
+        NextTurnClientRpc(whoseTurn, isFoul);
     }
 
     //次のターンへ以降するクラアント側の関数
@@ -231,6 +245,23 @@ public class GameManager : NetworkBehaviour
         {
             player.PlayerObject.GetComponent<PlayerController>().isReady.Value = false;
         }
+    }
+
+    //キュー設置関数
+    public void SetCue(ulong id)
+    {
+        GameObject mainBall = GameObject.FindGameObjectWithTag("MainBall");
+        GameObject cue = Instantiate(cuePrefab);
+        cue.transform.position = Vector3.zero;
+
+
+        cue.GetComponent<NetworkObject>().SpawnWithOwnership(id);
+    }
+
+    //キュー設置サーバーサイド関数
+    [ServerRpc(RequireOwnership = false)] public void SetCueServerRpc(ulong id)
+    {
+        SetCue(id);
     }
 
     //モード変更コールバック

@@ -607,6 +607,11 @@ MonoBehaviour:
       SourcePrefabToOverride: {fileID: 0}
       SourceHashToOverride: 0
       OverridingTargetPrefab: {fileID: 0}
+    - Override: 0
+      Prefab: {fileID: 4965424494940951423, guid: 7cf0ac8b2c5e4734884e6c5839b26bda, type: 3}
+      SourcePrefabToOverride: {fileID: 0}
+      SourceHashToOverride: 0
+      OverridingTargetPrefab: {fileID: 0}
     TickRate: 30
     ClientConnectionBufferTimeout: 10
     ConnectionApproval: 0
@@ -1461,6 +1466,7 @@ MonoBehaviour:
   hardMode:
     m_InternalValue: 0
   ballPrefab: {fileID: 892555900979264933, guid: 28876d9777e672e4aac65a3d892c4e96, type: 3}
+  cuePrefab: {fileID: 4965424494940951423, guid: 7cf0ac8b2c5e4734884e6c5839b26bda, type: 3}
 --- !u!114 &914194782
 MonoBehaviour:
   m_ObjectHideFlags: 0

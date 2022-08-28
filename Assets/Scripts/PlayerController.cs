@@ -84,7 +84,6 @@ public class PlayerController : NetworkBehaviour
             {
                 Vector3 prev = ballCameraBase.transform.rotation.eulerAngles;
                 ballCameraBase.transform.Rotate(0f, Input.GetAxis("Mouse X"), 0f);
-                Debug.Log(prev - ballCameraBase.transform.rotation.eulerAngles);
             }
         }
     }
