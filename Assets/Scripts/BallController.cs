@@ -47,9 +47,9 @@ public class BallController : NetworkBehaviour
         }
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void OnCollisionEnter(Collision collision)
     {
-        Debug.Log($"{transform.name}‚Æ{other.transform.name}‚ÉÚG");
+        Debug.Log($"{transform.name}‚Æ{collision.transform.name}‚ªÚG");
     }
     #endregion
 

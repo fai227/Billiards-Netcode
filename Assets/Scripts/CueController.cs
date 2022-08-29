@@ -9,12 +9,15 @@ public class CueController : NetworkBehaviour
     private NetworkVariable<Vector3> pos = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
     [Header("Variables")]
+    private Rigidbody rig;
     private PlayerController playerController;
     private GameObject mainBall;
+    private static float mouseSensitivity = 0.5f;
 
     void Start()
     {
         mainBall = GameObject.FindGameObjectWithTag("MainBall");
+        rig = GetComponent<Rigidbody>();
         playerController = NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<PlayerController>();
 
         SetPosition();
@@ -25,6 +28,9 @@ public class CueController : NetworkBehaviour
         //オーナーのみ操作可能
         if (IsOwner)
         {
+            //マウス移動を移動にする
+            rig.velocity = new Vector3(rig.velocity.x, rig.velocity.y, Input.GetAxis("Mouse Y") * mouseSensitivity);
+            Debug.Log(Input.GetAxis("Mouse Y") * mouseSensitivity);
             //操作
             if (Input.GetMouseButtonDown(0))
             {
@@ -45,7 +51,6 @@ public class CueController : NetworkBehaviour
 
         //白玉に向ける
         transform.LookAt(mainBall.transform);
-        Debug.Log(mainBall.transform.position);
     }
 
     private void SetPosition()
