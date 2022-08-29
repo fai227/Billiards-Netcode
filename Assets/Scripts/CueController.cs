@@ -12,7 +12,7 @@ public class CueController : NetworkBehaviour
     private Rigidbody rig;
     private PlayerController playerController;
     private GameObject mainBall;
-    private static float mouseSensitivity = 0.5f;
+    private static float mouseSensitivity = 2f;
 
     void Start()
     {
@@ -29,8 +29,7 @@ public class CueController : NetworkBehaviour
         if (IsOwner)
         {
             //ƒ}ƒEƒXˆÚ“®‚ğˆÚ“®‚É‚·‚é
-            rig.velocity = new Vector3(rig.velocity.x, rig.velocity.y, Input.GetAxis("Mouse Y") * mouseSensitivity);
-            Debug.Log(Input.GetAxis("Mouse Y") * mouseSensitivity);
+            rig.velocity = transform.forward * -Input.GetAxis("Mouse Y") * mouseSensitivity;
             //‘€ì
             if (Input.GetMouseButtonDown(0))
             {
@@ -49,8 +48,11 @@ public class CueController : NetworkBehaviour
             transform.position = pos.Value;
         }
 
-        //”’‹Ê‚ÉŒü‚¯‚é
-        transform.LookAt(mainBall.transform);
+        if (!Input.GetMouseButton(0))
+        {
+            //”’‹Ê‚ÉŒü‚¯‚é
+            transform.LookAt(mainBall.transform);
+        }
     }
 
     private void SetPosition()
