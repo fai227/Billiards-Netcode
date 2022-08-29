@@ -45,6 +45,7 @@ public class CueController : NetworkBehaviour
 
         //”’‹Ê‚ÉŒü‚¯‚é
         transform.LookAt(mainBall.transform);
+        Debug.Log(mainBall.transform.position);
     }
 
     private void SetPosition()
