@@ -82,8 +82,11 @@ public class PlayerController : NetworkBehaviour
             //カメラを動かすことが出来るときは動かす
             if (canMoveCamera)
             {
-                Vector3 prev = ballCameraBase.transform.rotation.eulerAngles;
-                ballCameraBase.transform.Rotate(0f, Input.GetAxis("Mouse X"), 0f);
+                if (!Input.GetMouseButton(0))
+                {
+                    Vector3 prev = ballCameraBase.transform.rotation.eulerAngles;
+                    ballCameraBase.transform.Rotate(0f, Input.GetAxis("Mouse X"), 0f);
+                }
             }
         }
     }
@@ -125,7 +128,7 @@ public class PlayerController : NetworkBehaviour
             //ファールじゃないとき
             if (!isFoul)
             {
-                
+
                 SetCameraPosition(true);
             }
             //ファールの時
@@ -178,6 +181,12 @@ public class PlayerController : NetworkBehaviour
         DOVirtual.DelayedCall(cameraModeDuration, () =>
         {
             canMoveCamera = true;
+
+            //キューを動かせるようにする
+            if (follow)
+            {
+                GameObject.FindGameObjectWithTag("Cue").GetComponent<CueController>().canMove = true;
+            }
         }, false);
     }
     #endregion

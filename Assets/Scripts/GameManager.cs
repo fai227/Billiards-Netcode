@@ -252,8 +252,8 @@ public class GameManager : NetworkBehaviour
     {
         GameObject mainBall = GameObject.FindGameObjectWithTag("MainBall");
         GameObject cue = Instantiate(cuePrefab);
-        cue.transform.position = Vector3.zero;
-
+        cue.transform.position = mainBall.transform.position;
+        cue.transform.rotation = Quaternion.Euler(0f, Quaternion.LookRotation(-mainBall.transform.position).eulerAngles.y, 0f);
 
         cue.GetComponent<NetworkObject>().SpawnWithOwnership(id);
     }

@@ -123,6 +123,8 @@ public class UIManager : NetworkBehaviour
             FadePanel(gamePanel, true);
             FadePanel(lobbyPanel, false);
 
+            //カーソル設定
+            Cursor.lockState = CursorLockMode.Locked;
         }
         //ゲーム終了
         else
@@ -131,7 +133,8 @@ public class UIManager : NetworkBehaviour
             FadePanel(gamePanel, false);
             FadePanel(lobbyPanel, true);
 
-
+            //カーソル設定
+            Cursor.lockState = CursorLockMode.None;
         }
     }
 

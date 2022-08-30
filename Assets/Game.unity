@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.44657826, g: 0.49641263, b: 0.57481676, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -608,7 +608,7 @@ MonoBehaviour:
       SourceHashToOverride: 0
       OverridingTargetPrefab: {fileID: 0}
     - Override: 0
-      Prefab: {fileID: 4965424494940951423, guid: 7cf0ac8b2c5e4734884e6c5839b26bda, type: 3}
+      Prefab: {fileID: 1929316610211419068, guid: 7cf0ac8b2c5e4734884e6c5839b26bda, type: 3}
       SourcePrefabToOverride: {fileID: 0}
       SourceHashToOverride: 0
       OverridingTargetPrefab: {fileID: 0}
@@ -1466,7 +1466,7 @@ MonoBehaviour:
   hardMode:
     m_InternalValue: 0
   ballPrefab: {fileID: 892555900979264933, guid: 28876d9777e672e4aac65a3d892c4e96, type: 3}
-  cuePrefab: {fileID: 4965424494940951423, guid: 7cf0ac8b2c5e4734884e6c5839b26bda, type: 3}
+  cuePrefab: {fileID: 1929316610211419068, guid: 7cf0ac8b2c5e4734884e6c5839b26bda, type: 3}
 --- !u!114 &914194782
 MonoBehaviour:
   m_ObjectHideFlags: 0
