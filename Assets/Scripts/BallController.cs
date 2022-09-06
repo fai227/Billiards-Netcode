@@ -18,15 +18,31 @@ public class BallController : NetworkBehaviour
 
     [Header("Ball Sprite")]
     [SerializeField] private Texture[] ballTextures;
+
+    [Header("Audio")]
+    private AudioSource audioSource;
+    [SerializeField] private AudioClip ballHitClip;
+    [SerializeField] private AudioClip pocketInClip;
     #endregion
 
     #region Unity Methods
+    private void Start()
+    {
+        audioSource = GetComponent<AudioSource>();
+    }
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
 
         ChangeBallMaterial();
         UpdateTransform();
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        base.OnNetworkDespawn();
+
+        GameManager.Instance.audioSource.PlayOneShot(pocketInClip);
     }
 
     private void Update()
@@ -49,13 +65,29 @@ public class BallController : NetworkBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        Debug.Log($"{transform.name}と{collision.transform.name}が接触");
+        if(collision.transform.CompareTag("Ball") || collision.transform.CompareTag("MainBall"))
+        {
+            audioSource.PlayOneShot(ballHitClip);
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (!myTurn)
+        {
+            return;
+        }
+
+        if (other.transform.CompareTag("Pocket"))
+        {
+            CupInServerRpc();
+        }
     }
     #endregion
 
     #region Methods
     //位置の設定関数（サーバー側）
-    [ServerRpc]
+    [ServerRpc(RequireOwnership = false)]
     private void SynchronizeTransformServerRpc(Vector3 pos, Quaternion rot)
     {
         networkPos.Value = pos;
@@ -85,6 +117,12 @@ public class BallController : NetworkBehaviour
     {
         transform.position = networkPos.Value;
         transform.rotation = networkRot.Value;
-    } 
+    }
+
+    [ServerRpc(RequireOwnership = false)] private void CupInServerRpc()
+    {
+        GetComponent<NetworkObject>()?.Despawn();
+        GameManager.Instance.CupIn(ballNumber.Value);
+    }
     #endregion
 }

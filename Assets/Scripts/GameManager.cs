@@ -31,9 +31,14 @@ public class GameManager : NetworkBehaviour
 
     [Header("Ball")]
     [SerializeField] private GameObject ballPrefab;
+    private List<int> ballList = new();
 
     [Header("Cue")]
     [SerializeField] private GameObject cuePrefab;
+
+    [Header("Audio")]
+    public AudioSource audioSource;
+    [SerializeField] private AudioClip startAudio;
 
     #endregion
 
@@ -41,6 +46,11 @@ public class GameManager : NetworkBehaviour
     private void Awake()
     {
         Instance = this;
+    }
+
+    private void Start()
+    {
+        audioSource = GetComponent<AudioSource>();
     }
 
     public override void OnNetworkSpawn()
@@ -126,6 +136,7 @@ public class GameManager : NetworkBehaviour
 
         //ボール設置
 
+
         //ボール準備
         int[] ballNumbers = new int[15];
         switch (gameType.Value)
@@ -190,19 +201,25 @@ public class GameManager : NetworkBehaviour
 
         //白球設置
         GenerateBall(0, new Vector3(-0.68f, 0f, 0f), Quaternion.Euler(90f, 90f, 0f));
-
+        
         //ゲーム開始（ターン初期化）
         startPlayerNum = UnityEngine.Random.Range(0, NetworkManager.ConnectedClientsIds.Count);
         NextTurn(); 
     }
 
-    //次のターンへ以降する関数（サーバーサイドで実行）
+    #region Next Turn
+    //次のターンへの移行をサーバーに依頼する関数関数
+    [ServerRpc(RequireOwnership = false)]
+    private void NextTurnServerRpc()
+    {
+        NextTurn();
+    }
+    //次のターンへ移行する関数（サーバーサイドで実行）
     public void NextTurn(int firstBallNum = 0)
     {
         //ボールが入っているかチェック
         bool isFoul = false;
         bool sameClientTurn = false;
-
         //--------------------
 
         //次のターンに設定
@@ -218,20 +235,75 @@ public class GameManager : NetworkBehaviour
             SetCue(whoseTurn);
         }
 
+        //設定変更
+        ballList.Clear();
+
         //次のプレイヤーに以降
         NextTurnClientRpc(whoseTurn, isFoul);
     }
 
     //次のターンへ以降するクラアント側の関数
-    [ClientRpc] public void NextTurnClientRpc(ulong nextPlayerID, bool isFoul = false)
+    [ClientRpc]
+    public void NextTurnClientRpc(ulong nextPlayerID, bool isFoul = false)
     {
         //ターンのUIを変更
         UIManager.Instance.SetNowPlayerUI(nextPlayerID);
 
         //設定
-        bool myTurn = nextPlayerID == NetworkManager.LocalClientId;
+        bool myTurn = nextPlayerID == NetworkManager.Singleton.LocalClientId;
         BallController.myTurn = myTurn;
         NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<PlayerController>().SetMyTurn(myTurn, isFoul);
+        if (myTurn)
+        {
+            StartCoroutine(MyTurnCoroutine());
+        }
+    } 
+    #endregion
+
+    private IEnumerator MyTurnCoroutine()
+    {
+        //白球が置かれるまで待つ
+        while (PlayerController.settingMainBall)
+        {
+            yield return new WaitForSeconds(1f);
+        }
+
+        //撃たれるまで待つ
+        while(!PlayerController.finishedShot)
+        {
+            yield return new WaitForSeconds(1f);
+        }
+        PlayerController.finishedShot = false;
+        yield return new WaitForSeconds(1f);
+
+        //全ての球のオブジェクトを取得
+        List<Rigidbody> ballRigidbodies = new();
+        foreach(var ball in GameObject.FindGameObjectsWithTag("Ball"))
+        {
+            ballRigidbodies.Add(ball.GetComponent<Rigidbody>());
+        }
+        ballRigidbodies.Add(GameObject.FindGameObjectWithTag("MainBall").GetComponent<Rigidbody>());
+
+        //全て止まるまで待つ
+        while (true)
+        {
+            float speed = 0f;
+            foreach(var ballRigidbody in ballRigidbodies)
+            {
+                if(ballRigidbody != null)
+                {
+                    speed += ballRigidbody.velocity.magnitude;
+                }
+            }
+            
+            if(speed <= 0f)
+            {
+                break;
+            }
+            yield return new WaitForSeconds(1f);
+        }
+
+        NextTurnServerRpc();
     }
 
     //ゲーム終了関数（サーバーサイドのみで実行される）
@@ -254,7 +326,6 @@ public class GameManager : NetworkBehaviour
         GameObject cue = Instantiate(cuePrefab);
         cue.transform.position = mainBall.transform.position;
         cue.transform.rotation = Quaternion.Euler(0f, Quaternion.LookRotation(-mainBall.transform.position).eulerAngles.y, 0f);
-
         cue.GetComponent<NetworkObject>().SpawnWithOwnership(id);
     }
 
@@ -270,6 +341,14 @@ public class GameManager : NetworkBehaviour
         UIManager.Instance.SetModeButton(next);
     }
 
+
+    #region Ball Generaion Methods
+    //ボール設置関数サーバーに依頼
+    [ServerRpc(RequireOwnership = false)]
+    public void GenerateMainBallServerRpc(Vector3 pos)
+    {
+        GenerateBall(0, pos, Quaternion.identity);
+    }
     //ボール設置関数（サーバーサイドのみで実行される）
     private void GenerateBall(int ballNumber, Vector3 pos, Quaternion rot)
     {
@@ -281,9 +360,14 @@ public class GameManager : NetworkBehaviour
         ballController.networkRot.Value = rot;
 
         ballObject.GetComponent<NetworkObject>().Spawn();
-    }
+    } 
+    #endregion
 
-    
+    //ボールが入った時に実行される関数（サーバーサイドのみで実行される）
+    public void CupIn(int ballNum)
+    {
+        ballList.Add(ballNum);
+    }
     #endregion
 }
 

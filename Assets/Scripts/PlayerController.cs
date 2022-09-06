@@ -21,6 +21,9 @@ public class PlayerController : NetworkBehaviour
     private static Vector3 cameraNearPosition = new Vector3(0f, 0.25f, -0.5f);
     private static float cameraModeDuration = 2f;
 
+    public static bool settingMainBall;
+    public static bool finishedShot;
+
     #endregion
 
     #region Unity Methods
@@ -77,6 +80,7 @@ public class PlayerController : NetworkBehaviour
 
     private void Update()
     {
+        //カメラ移動
         if (IsOwner)
         {
             //カメラを動かすことが出来るときは動かす
@@ -87,6 +91,19 @@ public class PlayerController : NetworkBehaviour
                     Vector3 prev = ballCameraBase.transform.rotation.eulerAngles;
                     ballCameraBase.transform.Rotate(0f, Input.GetAxis("Mouse X"), 0f);
                 }
+            }
+        }
+
+        //メインボールを設置する場所を表示する
+        if (settingMainBall)
+        {
+
+
+            //白球が置かれたとき
+            if (Input.GetMouseButtonDown(0))
+            {
+                settingMainBall = false;
+                SetCameraPosition(true);
             }
         }
     }
@@ -122,30 +139,14 @@ public class PlayerController : NetworkBehaviour
     //自分のターンかをセットする
     public void SetMyTurn(bool flag, bool isFoul)
     {
-        //自分のターンの時
-        if(flag)
-        {
-            //ファールじゃないとき
-            if (!isFoul)
-            {
-
-                SetCameraPosition(true);
-            }
-            //ファールの時
-            else
-            {
-
-                SetCameraPosition(false);
-            }
-        }
-        else
-        {
-
-            SetCameraPosition(false);
-        }
         //自身のターンで、ファールでなければカメラを追尾モードに設定
         SetCameraPosition(flag && !isFoul);
-        
+
+        //白球を生成する場合
+        if(flag && isFoul)
+        {
+            settingMainBall = true;
+        }
     }
 
     //カメラの位置を設定する関数

@@ -85,7 +85,6 @@ public class UIManager : NetworkBehaviour
     public void SetReady()
     {
         PlayerController mainPlayerController = NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<PlayerController>();
-
         mainPlayerController.SetReadyStateServerRpc(!mainPlayerController.isReady.Value);
     }
 

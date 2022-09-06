@@ -25,6 +25,9 @@ public class CueController : NetworkBehaviour
     private static float fadeDuration = 0.5f;
     private static float maxSpeed = 10f;
 
+    [Header("Audio")]
+    [SerializeField] private AudioClip cueHitClip;
+
     void Start()
     {
         mainBall = GameObject.FindGameObjectWithTag("MainBall");
@@ -86,6 +89,9 @@ public class CueController : NetworkBehaviour
         {
             //フェードアウトを実行、サーバーに依頼
             FadeOut();  FadeOutServerRpc();
+
+            //撃った
+            PlayerController.finishedShot = true;
         }
     }
 
@@ -107,6 +113,8 @@ public class CueController : NetworkBehaviour
 
     private void FadeOut()
     {
+        GetComponent<AudioSource>().PlayOneShot(cueHitClip);
+
         canMove = false;
 
         foreach(var material in GetComponentInChildren<Renderer>().materials)
